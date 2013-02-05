@@ -145,7 +145,7 @@ module Guard
         listener_options[option.to_sym] = options[option] if options.key?(option)
       end
 
-      @listener = Listen.to(@watchdir, listener_options).change(&listener_callback)
+      @listener = GuardListen.to(@watchdir, listener_options).change(&listener_callback)
     end
 
     # Enables or disables the notifier based on user's configurations.
