@@ -1,6 +1,6 @@
 require 'rbconfig'
 require 'thread'
-require 'listen'
+require 'guard_listen'
 
 # Guard is the main module for all Guard related modules and classes.
 # Also Guard plugins should use this namespace.
