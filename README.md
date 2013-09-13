@@ -1,38 +1,43 @@
-Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://secure.travis-ci.org/guard/guard.png?branch=master)](http://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/guard/guard)
+Guard [![Gem Version](https://badge.fury.io/rb/guard.png)](http://badge.fury.io/rb/guard) [![Build Status](https://travis-ci.org/guard/guard.png?branch=master)](https://travis-ci.org/guard/guard) [![Dependency Status](https://gemnasium.com/guard/guard.png)](https://gemnasium.com/guard/guard) [![Code Climate](https://codeclimate.com/github/guard/guard.png)](https://codeclimate.com/github/guard/guard) [![Coverage Status](https://coveralls.io/repos/guard/guard/badge.png?branch=master)](https://coveralls.io/r/guard/guard)
 =====
 
+<img src="http://img515.imageshack.us/img515/1358/guardicon.png" alt="Guard Icon" align="right" />
 Guard is a command line tool to easily handle events on file system modifications.
 
 This document contains a lot of information, please take your time and read these instructions carefully. If you have
-any questions, ask them in our [Google group](http://groups.google.com/group/guard-dev) or on `#guard`
-(irc.freenode.net).
+any questions about the Guard usage or want to share some information with the Guard community, please go to one of
+the following places:
+
+* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477)
+* [Google group](http://groups.google.com/group/guard-dev)
+* [StackOverflow](http://stackoverflow.com/questions/tagged/guard)
+* IRC channel `#guard` (irc.freenode.net) for chatting
 
 Information on advanced topics like creating your own Guard plugin, programatic use of Guard, hooks and callbacks and
 more can be found in the [Guard wiki](https://github.com/guard/guard/wiki).
 
-Before you file an issue, make sure you have read the _[file an issue](#file-an-issue)_ section that contains some
-important information.
+Before you file an issue, make sure you have read the _[known issues](#issues)_ and _[file an issue](#file-an-issue)_ sections that contains some important information.
 
-Features
---------
+#### Features
 
 * File system changes handled by our awesome [Listen](https://github.com/guard/listen) gem.
 * Support for visual system notifications.
-* Huge eco-system with [more than 150](https://rubygems.org/search?query=guard-) guard plugins.
-* Tested against Ruby 1.8.7, 1.9.2, 1.9.3, REE and the latest versions of JRuby & Rubinius.
+* Huge eco-system with [more than 220](https://rubygems.org/search?query=guard-) Guard plugins.
+* Tested against Ruby 1.9.2, 1.9.3, 2.0.0, JRuby (1.9 mode) & Rubinius (1.9 mode).
 
-Screencast
-----------
+#### Screencast
 
-Ryan Bates made an excellent [RailsCast about Guard](http://railscasts.com/episodes/264-guard) and you should definitely
-watch it for a nice introduction to Guard.
+Two nice screencasts are available to help you get started:
+
+* [Guard](http://railscasts.com/episodes/264-guard) on RailsCast.
+* [Guard is Your Best Friend](http://net.tutsplus.com/tutorials/tools-and-tips/guard-is-your-best-friend) on Net Tuts+.
 
 Installation
 ------------
 
 The simplest way to install Guard is to use [Bundler](http://gembundler.com/).
 
-Add Guard to your `Gemfile`:
+Add Guard (and any other dependencies) to a `Gemfile` in your project’s root:
 
 ```ruby
 group :development do
@@ -40,7 +45,7 @@ group :development do
 end
 ```
 
-and install it by running Bundler:
+then install it by running Bundler:
 
 ```bash
 $ bundle
@@ -52,215 +57,20 @@ Generate an empty `Guardfile` with:
 $ guard init
 ```
 
+
+Run Guard through Bundler with:
+
+```bash
+$ bundle exec guard
+```
+
 **It's important that you always run Guard through Bundler to avoid errors.** If you're getting sick of typing
 `bundle exec` all the time, try the [Rubygems Bundler](https://github.com/mpapis/rubygems-bundler).
 
 If you are on Mac OS X and have problems with either Guard not reacting to file changes or Pry behaving strange, then
-you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-proper-Readline-support-to-Ruby-on-Mac-OS-X).
+you should [add proper Readline support to Ruby on Mac OS X](https://github.com/guard/guard/wiki/Add-Readline-support-to-Ruby-on-Mac-OS-X).
 
-## Efficient Filesystem Handling
-
-Various operating systems are willing to notify you of changes to files, but the API to register/receive updates varies
-(see [rb-fsevent](https://github.com/thibaudgg/rb-fsevent) for OS X, [rb-inotify](https://github.com/nex3/rb-inotify)
-for Linux, and [rb-fchange](https://github.com/stereobooster/rb-fchange) for Windows). If you do not supply one of the
-supported gems for these methods, Guard will fall back to polling, and give you a warning about it doing so.
-
-A challenge arises when trying to make these dependencies work with [Bundler](http://gembundler.com/). If you simply put
-one of these dependencies into you `Gemfile`, even if it is conditional on a platform match, the platform-specific gem
-will end up in the `Gemfile.lock`, and developers will thrash the file back and forth.
-
-There is a good solution. All three gems will successfully, quietly install on all three operating systems, and
-`guard/listen` will only pull in the one you need. This is a more proper `Gemfile`:
-
-```Ruby
-group :development do
-  gem 'rb-inotify', :require => false
-  gem 'rb-fsevent', :require => false
-  gem 'rb-fchange', :require => false
-end
-```
-
-If you're using Windows and at least Ruby 1.9.2, then [Windows Directory Monitor](https://github.com/Maher4Ever/wdm) is
-more efficient than using `rb-fchange`.
-
-```Ruby
-group :development do
-  gem 'wdm', :platforms => [:mswin, :mingw], :require => false
-end
-```
-
-## Windows Colors
-
-If you want colors in your terminal, you'll have to add the [win32console](https://rubygems.org/gems/win32console) gem
-to your `Gemfile` and install it with Bundler:
-
-```ruby
-group :development do
-  gem 'win32console'
-end
-```
-
-## System notifications
-
-You can configure Guard to make use of the following system notification libraries:
-
-#### Ruby GNTP
-
-* Runs on Mac OS X, Linux and Windows
-* Supports [Growl](http://growl.info/) version >= 1.3, [Growl for Linux](http://mattn.github.com/growl-for-linux/),
-  [Growl for Windows](http://www.growlforwindows.com/gfw/default.aspx) and
-  [Snarl](https://sites.google.com/site/snarlapp/home)
-
-The [ruby_gntp](https://rubygems.org/gems/ruby_gntp) gem sends system notifications over the network with the
-[Growl Notification Transport Protocol](http://www.growlforwindows.com/gfw/help/gntp.aspx) and supports local and
-remote notifications. To have the images be displayed, you have to use `127.0.0.1` instead of `localhost` in your GTNP
-configuration.
-
-Guard supports multiple notification channels for customizing each notification type. For Growl on Mac OS X you need
-to have at least version 1.3 installed.
-
-To use `ruby_gntp` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'ruby_gntp'
-end
-```
-
-#### Growl
-
-* Runs on Mac OS X
-* Supports all [Growl](http://growl.info/) versions
-
-The [growl](https://rubygems.org/gems/growl) gem is compatible with all versions of Growl and uses a command line tool
-[growlnotify](http://growl.info/extras.php#growlnotify) that must be separately downloaded and installed. The version of
-the command line tool must match your Growl version. The `growl` gem does **not** support multiple notification
-channels.
-
-You have to download the installer for `growlnotify` from the [Growl download section](http://growl.info/downloads).
-
-To use `growl` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'growl'
-end
-```
-
-#### Libnotify
-
-* Runs on Linux, FreeBSD, OpenBSD and Solaris
-* Supports [Libnotify](http://developer.gnome.org/libnotify/)
-
-The [libnotify](https://rubygems.org/gems/libnotify) gem supports the Gnome libnotify notification daemon, but it can be
-used on other window managers as well. You have to install the `libnotify-bin` package with your favorite package
-manager.
-
-To use `libnotify` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'libnotify'
-end
-```
-
-If you are unable to build the `libnotify` gem on your system, Guard
-also has a built in notifier - `notifysend` - that shells out to the
-`notify-send` utility that comes with `libnotify-bin`.
-
-#### Notifu
-
-* Runs on Windows
-* Supports [Notifu](http://www.paralint.com/projects/notifu/)
-
-The [rb-notifu](https://rubygems.org/gems/rb-notifu) gem supports Windows system tray notifications.
-
-To use `rb-notifu` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'rb-notifu'
-end
-```
-
-#### GrowlNotify
-
-* Runs on Mac OS X
-* Supports [Growl](http://growl.info/) version >= 1.3
-* Doesn't support JRuby and MacRuby.
-* Doesn't work when forking, e.g. with [Spork](https://github.com/sporkrb/spork).
-
-The [growl_notify](https://rubygems.org/gems/growl_notify) gem uses AppleScript to send Growl notifications.
-The gem needs a native C extension to make use of AppleScript and does not run on JRuby and MacRuby.
-
-Guard supports multiple notification channels for customizing each notification type and you need to have at least
-Growl version 1.3 installed.
-
-To use `growl_notify` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'growl_notify'
-end
-```
-
-#### Terminal Notifier
-
-* Runs on Mac OS X 10.8 only
-
-The [terminal-notifier-guard](https://github.com/Springest/terminal-notifier-guard) sends notifications to the OS X
-Notification Center.
-
-To use `terminal-notifier-guard` you have to add it to your `Gemfile` and run bundler:
-
-```ruby
-group :development do
-  gem 'terminal-notifier-guard'
-end
-```
-
-#### Terminal Title
-
-* Runs in every terminal supporting XTerm escape sequences to set the window title.
-
-#### Emacs
-
-* Runs on any platform with Emacs + emacsclient (http://www.emacswiki.org/emacs/EmacsClient)
-
-### TMux
-
-* To use TMux notifications, you have to start Guard within a [TMux](http://tmux.sourceforge.net/) session.
-
-The TMux notifier will color the background of the left part of the
-status bar indicating the status of the notifications. Optionally you
-can set `:display_message => true` to display the Guard notification as
-'display-message' notification.
-
-The way these messages are formatted is configurable.
-
-```ruby
-# Guardfile
-notification :tmux,
-  :display_message => true,
-  :timeout => 5, # in seconds
-  :default_message_format => '%s >> %s',
-  # the first %s will show the title, the second the message
-  # Alternately you can also configure *success_message_format*,
-  # *pending_message_format*, *failed_message_format*
-  :line_separator => ' > ', # since we are single line we need a separator
-  :color_location => 'status-left-bg' # to customize which tmux element will change color
-```
-
-The result will be for RSpec using example above
-
-    RSpec >> 15 test, 0 failures > in 0.002 sec
-
-You can use nice powerline chars here if you have that configured.
-
-You can get the message history by using `Ctrl+b ~` (where `Ctrl+b` is your key to activate TMux).
-
-Add Guard plugins
------------------
+#### Add Guard plugins
 
 Guard is now ready to use and you should add some Guard plugins for your specific use. Start exploring the many Guard
 plugins available by browsing the [Guard organization](https://github.com/guard) on GitHub or by searching for `guard-`
@@ -290,7 +100,7 @@ You can always get help on the available tasks with the `help` task:
 $ guard help
 ```
 
-To request more detailed help on a specific task is simple: just appending the task name to the help task.
+Requesting more detailed help on a specific task is simple: just append the task name to the help task.
 For example, to get help for the `start` task, simply run:
 
 ```bash
@@ -363,7 +173,7 @@ $ guard -c # shortcut
 You can add the following snippet to your `~/.guardrc` to have the clear option always be enabled:
 
 ```
-Guard.options[:clear] = true
+Guard.options.clear = true
 ```
 
 #### `-n`/`--notify` option
@@ -409,10 +219,11 @@ $ guard -d # shortcut
 
 #### `-w`/`--watchdir` option
 
-Guard can watch any directory instead of the current directory:
+Guard can watch any number of directories instead of only the current directory:
 
 ```bash
 $ guard --watchdir ~/your/fancy/project
+$ guard -w ~/your/fancy/project ~/your/fancier/project2 #multiple directories
 $ guard -w ~/your/fancy/project # shortcut
 ```
 
@@ -468,8 +279,6 @@ You can list the available plugins with the `list` task:
 ```bash
 $ guard list
 +----------+--------------+
-| Available Guard plugins |
-+----------+--------------+
 | Plugin   | In Guardfile |
 +----------+--------------+
 | Compass  | ✘            |
@@ -489,11 +298,8 @@ You can show the structure of the groups and their plugins with the `show` task:
 ```bash
 $ guard show
 +---------+--------+-----------------+----------------------------+
-|                       Guardfile structure                       |
-+---------+--------+-----------------+----------------------------+
 | Group   | Plugin | Option          | Value                      |
 +---------+--------+-----------------+----------------------------+
-| Default |        |                 |                            |
 | Specs   | Rspec  | all_after_pass  | true                       |
 |         |        | all_on_start    | true                       |
 |         |        | cli             | "--fail-fast --format doc" |
@@ -501,12 +307,32 @@ $ guard show
 |         |        | keep_failed     | true                       |
 |         |        | run_all         | {}                         |
 |         |        | spec_paths      | ["spec"]                   |
++---------+--------+-----------------+----------------------------+
 | Docs    | Ronn   |                 |                            |
 +---------+--------+-----------------+----------------------------+
 ```
 
 This shows the internal structure of the evaluated `Guardfile` or `.Guardfile`, with the `.guard.rb` file. You can
-read more about these files in the [shared configuration section](https://github.com/guard/guard#shared-configurations).
+read more about these files in the [shared configuration section](https://github.com/guard/guard/wiki/Shared-configurations).
+
+### Notifiers
+
+You can show the notifiers, their availablity and options with the `notifier` task:
+
+```bash
+$ guard notifiers
++-------------------+-----------+------+------------------------+-------------------+
+| Name              | Available | Used | Option                 | Value             |
++-------------------+-----------+------+------------------------+-------------------+
+| gntp              | ✔         | ✘    | sticky                 | false             |
++-------------------+-----------+------+------------------------+-------------------+
+| growl             | ✘         | ✘    | sticky                 | false             |
+|                   |           |      | priority               | 0                 |
++-------------------+-----------+------+------------------------+-------------------+
+```
+
+This shows if a notifier is available on the current system, it it's being used and the
+current options (which reflects your custom options merged into the default options).
 
 Interactions
 ------------
@@ -552,6 +378,9 @@ and extend Guard for your own needs and distribute as a gem. Please have a look 
 
 You can also interact with Guard by sending POSIX signals to the Guard process (all but Windows and JRuby).
 
+If the Pry interactor is used, then `Ctrl-C` is delegated to Pry to exit continuation and `Ctrl-D` to exit Guard.
+Without interactor, `Ctrl-C` exits Guard and `Ctrl-D` is ignored.
+
 #### Pause watching
 
 ```bash
@@ -576,14 +405,14 @@ The `guard` method allows you to add a Guard plugin to your toolchain and config
 options after the name of the plugin:
 
 ```ruby
-guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
+guard :coffeescript, input: 'coffeescripts', output: 'javascripts'
 ```
 
 You can define the same plugin more than once:
 
 ```ruby
-guard :coffeescript, :input => 'coffeescripts', :output => 'javascripts'
-guard :coffeescript, :input => 'specs', :output => 'specs'
+guard :coffeescript, input: 'coffeescripts', output: 'javascripts'
+guard :coffeescript, input: 'specs', output: 'specs'
 ```
 
 ### watch
@@ -658,6 +487,22 @@ $ guard -g specs
 
 Guard plugins that don't belong to a group are considered global and are always run.
 
+Another neat use of groups is to group dependant plugins and stop processing if one fails. In order
+to make this work, the group needs to have the `halt_on_fail` option enabled and the Guard plugin
+needs to throw `:task_has_failed` to indicate that the action was not successful.
+
+```ruby
+group :specs, halt_on_fail: true do
+  guard :rspec do
+    watch(/.../)
+  end
+
+  guard :cucumber do
+    watch(/.../)
+  end
+end
+```
+
 ### scope
 
 The `scope` method allows you to define the default plugin or group scope for Guard, if not
@@ -667,24 +512,26 @@ the DSL scope configuration.
 You can define either a single plugin or group:
 
 ```ruby
-scope :plugin => :rspec
-scope :group => :docs
+scope plugin: :rspec
+scope group: :docs
 ```
 
 or specify multiple plugins or groups.
 
 ```ruby
-scope :plugins => [:test, :jasmine]
-scope :groups => [:docs, :frontend]
+scope plugins: [:test, :jasmine]
+scope groups: [:docs, :frontend]
 ```
 
 If you define both the plugin and group scope, the plugin scope has precedence. If you use both the
 plural and the singular option, the plural has precedence.
 
+**Please be sure to call the `scope` method after you've declared your Guard plugins!**
+
 ### notification
 
 If you don't specify any notification configuration in your `Guardfile`, Guard goes through the list of available
-notifiers and takes the first that is available. If you specify your preferred library, auto detection will not take
+notifiers and enables all that are available. If you specify your preferred library, auto detection will not take
 place:
 
 ```ruby
@@ -694,17 +541,17 @@ notification :growl
 will select the `growl` gem for notifications. You can also set options for a notifier:
 
 ```ruby
-notification :growl, :sticky => true
+notification :growl, sticky: true
 ```
 
 Each notifier has a slightly different set of supported options:
 
 ```ruby
-notification :growl, :sticky => true, :host => '192.168.1.5', :password => 'secret'
-notification :gntp, :sticky => true, :host => '192.168.1.5', :password => 'secret'
-notification :growl_notify, :sticky => true, :priority => 0
-notification :libnotify, :timeout => 5, :transient => true, :append => false, :urgency => :critical
-notification :notifu, :time => 5, :nosound => true, :xp => true
+notification :growl, sticky: true, host: '192.168.1.5', password: 'secret'
+notification :gntp, sticky: true, host: '192.168.1.5', password: 'secret'
+notification :growl_notify, sticky: true, priority: 0
+notification :libnotify, timeout: 5, transient: true, append: false, urgency: :critical
+notification :notifu, time: 5, nosound: true, xp: true
 notification :emacs
 ```
 
@@ -723,7 +570,7 @@ notification :off
 You can customize the Pry interactor history and RC file like:
 
 ```ruby
-interactor :guard_rc => '~/.my_guard-rc', :history_file => '~/.my_guard_history_file'
+interactor guard_rc: '~/.my_guard-rc', history_file: '~/.my_guard_history_file'
 ```
 
 If you do not need the Pry interactions with Guard at all, you can turn it off:
@@ -760,7 +607,7 @@ This comes in handy when you have large amounts of non-source data in you projec
 are ignored.
 
 Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
 
 To append to the default ignored files and directories, use the `ignore` method:
 
@@ -781,7 +628,7 @@ The `filter` method allows you to focus by filtering files and directories witho
 the `filter` method.
 
 Please note that method only accept regexps. More on the
-[Listen README](https://github.com/guard/listen#the-patterns-for-filtering-and-ignoring-paths).
+[Listen README](https://github.com/guard/listen#note-on-the-patterns-for-ignoring-and-filtering-paths).
 
 ```ruby
 filter /\.txt$/, /.*\.zip/
@@ -790,7 +637,7 @@ filter /\.txt$/, /.*\.zip/
 To _replace_ any existing filter, use the `filter!` method:
 
 ```ruby
-filter /\.js$/
+filter! /\.js$/
 ```
 
 ### logger
@@ -799,12 +646,12 @@ The `logger` method allows you to customize the [Lumberjack](https://github.com/
 needs by specifying one or more options like:
 
 ```ruby
-logger :level       => :warn,
-       :template    => '[:severity - :time - :progname] :message',
-       :time_format => 'at %I:%M%p',
-       :only        => [:rspec, :jasmine, 'coffeescript'],
-       :except      => :jammit,
-       :device      => 'guard.log'
+logger level:       :warn,
+       template:    '[:severity - :time - :progname] :message',
+       time_format: 'at %I:%M%p',
+       only:        [:rspec, :jasmine, 'coffeescript'],
+       except:      :jammit,
+       device:      'guard.log'
 ```
 
 Log `:level` option must be either `:debug`, `:info`, `:warn` or `:error`. If Guard is started in debug mode, the log
@@ -822,64 +669,21 @@ the Guard plugin name that sends the log message. They cannot be specified at th
 By default the logger uses `$stderr` as device, but you can override this by supplying the `:device` option and set
 either an IO stream or a filename.
 
-### Example
+Issues
+------
 
-```ruby
-ignore %r{^ignored/path/}, /public/
-filter /\.txt$/, /.*\.zip/
+Please check guard's [GitHub issue tracker](https://github.com/guard/guard/issues) for known issues.  Additionally you should check [listen's issue tracker](https://github.com/guard/listen/issues) for issues which affect guard's behaviour; for example, there is currently a nasty [bug preventing listen from watching files inside symlinked directories](https://github.com/guard/listen/issues/25).
 
-notification :growl_notify
-notification :gntp, :host => '192.168.1.5'
-
-group :backend do
-  guard :bundler do
-    watch('Gemfile')
-  end
-
-  guard :rspec, :cli => '--color --format doc' do
-    watch(%r{^spec/.+_spec\.rb$})
-    watch(%r{^lib/(.+)\.rb$})         { |m| "spec/lib/#{m[1]}_spec.rb" }
-    watch(%r{^spec/models/.+\.rb$})   { ["spec/models", "spec/acceptance"] }
-    watch(%r{^spec/.+\.rb$})          { `say hello` }
-    watch('spec/spec_helper.rb')      { "spec" }
-  end
-end
-
-group :frontend do
-  guard :coffeescript, :output => 'public/javascripts/compiled' do
-    watch(%r{^app/coffeescripts/.+\.coffee$})
-  end
-
-  guard :livereload do
-    watch(%r{^app/.+\.(erb|haml)$})
-  end
-end
-```
-
-Shared configurations
----------------------
-
-You may optionally place a `.Guardfile` in your home directory to use it across multiple projects. It's evaluated when
-you have no `Guardfile` in your current directory.
-
-If a `.guard.rb` is found in your home directory, it will be appended to the `Guardfile` in your current directory.
-This can be used for tasks you want guard to handle but other users probably don't.
-
-For example, indexing your source tree with [Ctags](http://ctags.sourceforge.net):
-
-```ruby
-guard :shell do
-  watch(%r{^(?:app|lib)/.+\.rb$}) { `ctags -R` }
-end
-```
-
-File an issue
--------------
+#### File an issue
 
 You can report bugs and feature requests to [GitHub Issues](https://github.com/guard/guard/issues).
 
-**Please don't ask question in the issue tracker**, instead ask them in our
-[Google group](http://groups.google.com/group/guard-dev) or on `#guard` (irc.freenode.net).
+**Please don't ask question in the issue tracker**, instead ask them at one of our other places:
+
+* [Google+ community](https://plus.google.com/u/1/communities/110022199336250745477)
+* [Google group](http://groups.google.com/group/guard-dev)
+* [StackOverflow](http://stackoverflow.com/questions/tagged/guard)
+* IRC channel `#guard` (irc.freenode.net) for chatting
 
 Try to figure out where the issue belongs to: Is it an issue with Guard itself or with a Guard plugin you're
 using?
@@ -906,26 +710,35 @@ Development
 Pull requests are very welcome! Please try to follow these simple rules if applicable:
 
 * Please create a topic branch for every separate change you make.
-* Make sure your patches are well tested. All specs run with `rake spec:portability` must pass.
+* Make sure your patches are well tested. All specs must pass on [Travis CI](https://travis-ci.org/guard/guard).
 * Update the [Yard](http://yardoc.org/) documentation.
 * Update the [README](https://github.com/guard/guard/blob/master/README.md).
-* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes.
+* Update the [CHANGELOG](https://github.com/guard/guard/blob/master/CHANGELOG.md) for noteworthy changes (don't forget to run `bundle exec pimpmychangelog` and watch the magic happen)!
 * Please **do not change** the version number.
 
 For questions please join us in our [Google group](http://groups.google.com/group/guard-dev) or on
 `#guard` (irc.freenode.net).
 
-### Author
+#### Open Commit Bit
+
+Guard has an open commit bit policy: Anyone with an accepted pull request gets added as a repository collaborator.
+Please try to follow these simple rules:
+
+* Commit directly onto the master branch only for typos, improvements to the readme and documentation (please add
+  `[ci skip]` to the commit message).
+* Create a feature branch and open a pull-request early for any new features to get feedback.
+* Make sure you adhere to the general pull request rules above.
+
+#### Author
 
 [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg))
 
-### Core Team
+#### Core Team
 
-* [Maher Sallam](https://github.com/Maher4Ever) ([@mahersalam](http://twitter.com/mahersalam))
 * [Michael Kessler](https://github.com/netzpirat) ([@netzpirat](http://twitter.com/netzpirat), [mksoft.ch](https://mksoft.ch))
 * [Rémy Coutable](https://github.com/rymai) ([@rymai](http://twitter.com/rymai), [rymai.me](http://rymai.me))
 * [Thibaud Guillaume-Gentil](https://github.com/thibaudgg) ([@thibaudgg](http://twitter.com/thibaudgg), [thibaud.me](http://thibaud.me/))
 
-### Contributors
+#### Contributors
 
 [https://github.com/guard/guard/contributors](https://github.com/guard/guard/contributors)

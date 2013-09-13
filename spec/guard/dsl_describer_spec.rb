@@ -1,17 +1,21 @@
 # encoding: utf-8
-
 require 'spec_helper'
+require 'guard/plugin'
+require 'formatador'
 
 describe Guard::DslDescriber do
 
   let(:guardfile) do
     <<-GUARDFILE
-      guard :test, :a => :b, :c => :d do
+      ignore! %r{tmp/}
+      notification :gntp, sticky: true
+
+      guard :test, a: :b, c: :d do
         watch('c')
       end
 
       group :a do
-        guard 'test', :x => 1, :y => 2 do
+        guard 'test', x: 1, y: 2 do
           watch('c')
         end
       end
@@ -25,56 +29,101 @@ describe Guard::DslDescriber do
   end
 
   before do
-    stub_const 'Guard::Test', Class.new(Guard::Guard)
-    stub_const 'Guard::Another', Class.new(Guard::Guard)
+    Guard.setup
+
+    stub_const 'Guard::Test', Class.new(Guard::Plugin)
+    stub_const 'Guard::Another', Class.new(Guard::Plugin)
+
+    @output = ''
+
+    # Strip escape sequences
+    STDOUT.stub(:tty?).and_return false
+
+    # Capture formatador output
+    Thread.current[:formatador] = Formatador.new
+    Thread.current[:formatador].stub(:print) do |msg|
+      @output << msg
+    end
   end
 
-  describe '.list' do
-    let(:output) do
-      <<-OUTPUT.gsub(/^\s+|\n$/, '')
-        +------------+--------------+
-        |  Available Guard plugins  |
-        +------------+--------------+
-        | Plugin     | In Guardfile |
-        +------------+--------------+
-        | Another    | ✔            |
-        | Even       | ✘            |
-        | More       | ✘            |
-        | Test       | ✔            |
-        +------------+--------------+
+  describe '#list' do
+    let(:result) do
+      <<-OUTPUT
+  +---------+-----------+
+  | Plugin  | Guardfile |
+  +---------+-----------+
+  | Another | ✔         |
+  | Even    | ✘         |
+  | More    | ✘         |
+  | Test    | ✔         |
+  +---------+-----------+
       OUTPUT
     end
 
     before do
-      ::Guard.stub(:guard_gem_names).and_return %w(test another even more)
+      ::Guard::PluginUtil.stub(:plugin_names).and_return %w(test another even more)
     end
 
     it 'lists the available Guards when they\'re declared as strings or symbols' do
-      # Delete is needed for 1.8.7 compatibility only
-      ::Guard::DslDescriber.list(:guardfile_contents => guardfile).to_s.delete(' ').should eq(output.delete(' '))
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).list
     end
   end
 
   describe '.show' do
-    let(:output) do
-      <<-OUTPUT.gsub(/^\s+|\n$/, '')
-       +---------+---------+--------+-------+
-       |        Guardfile structure         |
-       +---------+---------+--------+-------+
-       | Group   | Plugin  | Option | Value |
-       +---------+---------+--------+-------+
-       | Default | Test    | a      | :b    |
-       |         |         | c      | :d    |
-       | A       | Test    | x      | 1     |
-       |         |         | y      | 2     |
-       | B       | Another |        |       |
-       +---------+---------+--------+-------+
+    let(:result) do
+      <<-OUTPUT
+  +---------+---------+--------+-------+
+  | Group   | Plugin  | Option | Value |
+  +---------+---------+--------+-------+
+  | Default | Test    | a      | :b    |
+  |         |         | c      | :d    |
+  +---------+---------+--------+-------+
+  | A       | Test    | x      | 1     |
+  |         |         | y      | 2     |
+  +---------+---------+--------+-------+
+  | B       | Another |        |       |
+  +---------+---------+--------+-------+
       OUTPUT
     end
 
     it 'shows the Guards and their options' do
-      ::Guard::DslDescriber.show(:guardfile_contents => guardfile).to_s.should eq(output)
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).show
+
+      @output.should eq result
     end
   end
 
+  describe '.notifiers' do
+    let(:result) do
+      <<-OUTPUT
+  +----------------+-----------+------+--------+-------+
+  | Name           | Available | Used | Option | Value |
+  +----------------+-----------+------+--------+-------+
+  | gntp           | ✔         | ✔    | sticky | true  |
+  +----------------+-----------+------+--------+-------+
+  | terminal_title | ✘         | ✘    |        |       |
+  +----------------+-----------+------+--------+-------+
+      OUTPUT
+    end
+
+    before do
+      stub_const 'Guard::Notifier::NOTIFIERS', [
+        { gntp: ::Guard::Notifier::GNTP },
+        { terminal_title: ::Guard::Notifier::TerminalTitle }
+      ]
+
+      ::Guard::Notifier::GNTP.stub(:available?).and_return true
+      ::Guard::Notifier::TerminalTitle.stub(:available?).and_return false
+
+      ::Guard::Notifier.stub(:notifiers).and_return [
+        { name: :gntp, options: { sticky: true } }
+      ]
+    end
+
+    it 'shows the notifiers and their options' do
+      ::Guard::DslDescriber.new(guardfile_contents: guardfile).notifiers
+
+      @output.should eq result
+    end
+  end
 end

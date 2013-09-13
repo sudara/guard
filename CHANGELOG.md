@@ -1,3 +1,112 @@
+## Master
+
+No changes.
+
+## 2.0.0.pre - 12 September, 2013
+
+### Bug fixes
+
+- [#472][] Clear terminal title notification on exit. ([@netzpirat][])
+- [#457][] Raise an exception when a group is called "all". (reported by [@rweng][], fixed by [@rymai][])
+- [#471][] Only init once per plugin when running `guard init`. (reported by [@simon-ohara][], fixed by [@thibaudgg][])
+- [#456][] Fix notifu notifier. ([@netzpirat][])
+- [#435][] Fix pressing `C-c` when interactor thread is not started. ([@netzpirat][])
+
+### Removals & deprecations
+
+- Drop support of Ruby 1.8. ([@rymai][])
+- Remove `Guard::Guardfile.duplicate_definitions?`. ([@rymai][])
+- Remove the deprecated `watch_all_modifications` start option. ([@rymai][])
+- Remove the deprecated `no_vendor` start option. ([@rymai][])
+- Remove the deprecated `reset_color` UI method. ([@rymai][])
+- Remove the deprecated `match_file?` Watcher method. ([@rymai][])
+- Remove the deprecated `ignore_paths` DSL method. ([@rymai][])
+- Remove the deprecation warning for the `interactor` DSL method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_change` method. ([@rymai][])
+- Remove the deprecation warning for when a plugin defines the `run_on_deletion` method. ([@rymai][])
+- Deprecate `Guard.guards(filter)` in favor of `Guard.plugins(filter)`. ([@rymai][])
+- Deprecate `Guard.add_guard(name, options = {})` in favor of `Guard.add_plugin(name, options = {})`. ([@rymai][])
+- Deprecate `Guard.get_guard_class(name, fail_gracefully)` in favor of `Guard::PluginUtil.new(name).plugin_class(fail_gracefully: fail_gracefully)`. ([@rymai][])
+- Deprecate `Guard.locate_guard(name)` in favor of `Guard::PluginUtil.new(name).plugin_location`. ([@rymai][])
+- Deprecate `Guard.guard_gem_names` in favor of `Guard::PluginUtil.plugin_names`. ([@rymai][])
+- Deprecate `Guard::Guard` in favor of `Guard::Plugin`. ([@rymai][])
+- Deprecate `Guard::Dsl.evaluate_guardfile(options)` in favor of `Guard::Guardfile::Evaluator.new(options).evaluate_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.create_guardfile(options)` in favor of `Guard::Guardfile::Generator.new(options).create_guardfile`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_template(plugin_name)` in favor of `Guard::Guardfile::Generator.new.initialize_template(plugin_name)`. ([@rymai][])
+- Deprecate `Guard::Guardfile.initialize_all_templates` in favor of `Guard::Guardfile::Generator.new.initialize_all_templates`. ([@rymai][])
+
+### New features & improvements
+
+- [#469][] List available notifiers. ([@netzpirat][])
+- Refactor `Guard::Notifier` and the whole notifiers system. ([@rymai][])
+- Allow to pass symbols or actual Guard plugins / groups for the `scope` parameter to `Guard::Runner#run`. ([@rymai][])
+- Ensure Guard API calls are not order dependent. ([@rymai][])
+- Ensure Guard has sensible defaults. ([@rymai][])
+- New `#title` method for `Guard::Group` & `Guard::Plugin`. ([@rymai][])
+- New `Guard::Plugin::Base` module common to `Guard::Guard` (deprecated) & `Guard::Plugin`. ([@rymai][])
+- New `Guard::PluginUtil` that contains useful methods to find and instantiate Guard plugins. ([@rymai][])
+- New `Guard.plugin` method to find the first plugin matching a filter. ([@rymai][])
+- New `Guard.group` method to find the first group matching a filter. ([@rymai][])
+- Don't swallow exceptions when evaluating the Guardfile. ([@rymai][])
+- Rename `Guard::Hook` to `Guard::Plugin::Hooker`. ([@rymai][])
+- Move setup stuff into a new `Guard::Setuper` module. ([@rymai][])
+- Move deprecation stuff inside a new `Guard::Deprecator` class. ([@rymai][])
+
+## 1.8.2 - 30 July, 2013
+
+### Bug fix
+
+- [#443][] Escape `notify-send` arguments.  ([@netzpirat][])
+
+### Improvements
+
+- [#460][], [#463][] Better Windows support. ([@cablegram][])
+- [#450][] Allow multiple watch directories.  ([@timmfin][])
+
+## 1.8.1 - 17 June, 2013
+
+### Bug fixes
+
+- [#453][] Fix a Guard error when calling `guard show` or `guard list` and
+  the Guardfile contains methods called directly on the listener. ([@rymai][])
+- [#443][] Escape `notify-send` arguments. ([@netzpirat][])
+
+## 1.8.0 - 20 April, 2013
+
+### Improvements
+
+- Listen 1.0.0 support. ([@thibaudgg][])
+- [#416][] Support .guardrc file on the folder from which Guard is executed as well. ([@Nerian][])
+- Display an info message when a plugin throws `:task_has_failed`. ([@rymai][])
+- Ensure compatibility with new Listen's API. ([@rymai][])
+
+### Bug fixes
+
+- [#413][], [#414][] NoMethodError exceptions raised by plugins are no longer silently discarded. ([@aspiers][])
+- [#414][] Test suite now runs cleanly within a `tmux` session. ([@aspiers][])
+- Specs and Travis builds no longer require `guard-rspec`. ([@aspiers][], [@rymai][])
+- [#414][] Various minor issues with the test suite were fixed. ([@aspiers][])
+- [#409][], [#410][] Fix some typos and broken URLs. ([@aspiers][], [@rymai][])
+
+### Process changes
+
+- Guard has an open commit bit policy: Anyone with an accepted pull
+  request gets added as a repository collaborator. ([@netzpirat][])
+
+## 1.7.0 - 28 March, 2013
+
+### Improvements
+
+- [#407][], [#408][] Add file notifier to write notifications to a configured file. ([@amiel][])
+- Change the current work dir to the `watchdir`. ([@netzpirat][])
+- [#400][] Drop dependency on `terminal-table` and use `formatador` instead. ([@netzpirat][])
+
+### Bug fixes
+
+- [#406][] Avoid spurious 'nil' output from emacs notifier. ([@aspiers][])
+- [#402][] Make stty less noisy under JRuby. ([@pritchie][])
+- [#401][] Fix Pry `history_file` file expansion. ([@martoche][])
+
 ## 1.6.2 - 27 January, 2013
 
 ### Improvements
@@ -21,10 +130,10 @@
 
 ### New features
 
-- Allow the Guard scope to be defined from the `Guardfile` with the `scope` DSL method. ([@netzpirat][])
+- Allow the Guard scope to be defined from the `Guardfile` with the `scope` Dsl method. ([@netzpirat][])
 - [#378][] Scope plugins and groups from CLI and interactor. ([@netzpirat][])
 - [#369][] Allow Guard plugins to specify their template location. ([@schmurfy][])
-- [#364][] Add `ignore!` and `filter!` DSL methods. ([@tarsolya][])
+- [#364][] Add `ignore!` and `filter!` Dsl methods. ([@tarsolya][])
 - [#362][] Add interactor options `:history_file` and `:guard_rc`. ([@netzpirat][])
 
 ### Improvements
@@ -90,9 +199,13 @@
 
 ## 1.4.0 - 26 September, 2012
 
+### New feature
+
 - [#331][] Add tmux notifier. ([@royvandewater][])
 
 ## 1.3.3 - 20 September, 2012
+
+### Improvements
 
 - Add Guard application icon to GNTP notifier. ([@netzpirat][])
 - [#324][] Allow Terminal Notifier title to be customizable. ([@mattgreen][])
@@ -122,7 +235,7 @@
 - Add support for Emacs notifications ([@maio][])
 - Add support for multiple guards being passed to `guard init`. ([@jredville][])
 
-### 1.2.1 - 2 July, 2012
+### 1.2.3 - 2 July, 2012
 
 ### Bug fix
 
@@ -252,7 +365,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### Improvements
 
-- Add `interactor` to DSL to allow switching Guard interaction implementation. ([@netzpirat][])
+- Add `interactor` to Dsl to allow switching Guard interaction implementation. ([@netzpirat][])
 - Add quit action to the interactor. ([@Maher4Ever][])
 
 ## 0.9.1 - December 19, 2011
@@ -352,7 +465,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New feature
 
 - [#136][] New CLI `:watch_all_modifications`/`-A` option to watch for deleted and moved files too. ([@limeyd][] and [@netzpirat][])
-- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `:halt_on_fail => true`. ([@rymai][])
+- [#97][] Guard dependencies. Task execution can now be halted if a Guard throws `:task_has_failed` and `Guard::Dsl#group` options include `halt_on_fail: true`. ([@rymai][])
 - [#121][] `Guard.guards` and `Guard.groups` are now smart accessors. Filters can be passed to find a specific Guard/group or several Guard plugins/groups that match (see YARDoc). ([@rymai][] and [@ches][])
 - New `Guard::Group` class to store groups defined in Guardfile (with `Guard::Dsl#group`). ([@rymai][])
 
@@ -383,7 +496,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### New features
 
-- [#130][] Add `ignore_paths` method to DSL. ([@ianwhite][])
+- [#130][] Add `ignore_paths` method to Dsl. ([@ianwhite][])
 - [#128][] Users can add additional settings to `~/.guard.rb` that augment the existing Guardfile. ([@tpope][])
 
 ## 0.6.2 - August 17, 2011
@@ -423,7 +536,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### Improvements
 
 - [#99][] [OS X] Switch from growl gem to growl_notify gem. ([@johnbintz][])
-- [#115][] [Linux] Add `:transient => true` to default libnotify options. ([@zonque][])
+- [#115][] [Linux] Add `transient: true` to default libnotify options. ([@zonque][])
 - [#95][] Output system commands and options to be executed when in debug mode. ([@uk-ar][] and [@netzpirat][])
 - `Guard::Dsl.revaluate_guardfile` has been renamed to `Guard::Dsl.reevaluate_guardfile`. ([@rymai][])
 - New CLI options: ([@nestegg][])
@@ -479,7 +592,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 
 ### New features
 
-- [#73][] Allow DSL's `group` method to accept a Symbol as group name. ([@johnbintz][])
+- [#73][] Allow Dsl's `group` method to accept a Symbol as group name. ([@johnbintz][])
 - [#51][] Allow options (like `:priority`) to be passed through to the Notifier. ([@indirect][] and [@netzpirat][])
 
 ### Improvement
@@ -554,7 +667,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New features
 
 - The whole directory is now watched during `run_on_change` to detect new files modifications. ([@thibaudgg][])
-- [#26][] New DSL method: `group` allows you to group several guards. New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat][])
+- [#26][] New Dsl method: `group` allows you to group several guards. New CLI option: `--group group_name` to specify certain groups of guards to start. ([@netzpirat][])
 - `watch` patterns are now more strict: strings are matched with `String#==`, `Regexp` are matched with `Regexp#match`. ([@rymai][])
 - A deprecation warning is displayed if your `Guardfile` contains `String` that look like `Regexp` (bad!). ([@rymai][])
 - It's now possible to return an `Enumerable` in the `watch` optional blocks in the `Guardfile`. ([@rymai][])
@@ -562,7 +675,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 ### New specs
 
 - `Guard::Watcher`. ([@rymai][])
-- [#13][] `Guard::Dsl`. ([@oliamb][])
+- [#13][] `Guard::DSL`. ([@oliamb][])
 
 ## 0.2.2 - October 25, 2010
 
@@ -717,11 +830,36 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [#386]: https://github.com/guard/guard/issues/386
 [#387]: https://github.com/guard/guard/issues/387
 [#389]: https://github.com/guard/guard/issues/389
+[#400]: https://github.com/guard/guard/issues/400
+[#401]: https://github.com/guard/guard/issues/401
+[#402]: https://github.com/guard/guard/issues/402
+[#406]: https://github.com/guard/guard/issues/406
+[#407]: https://github.com/guard/guard/issues/407
+[#408]: https://github.com/guard/guard/issues/408
+[#409]: https://github.com/guard/guard/issues/409
+[#410]: https://github.com/guard/guard/issues/410
+[#413]: https://github.com/guard/guard/issues/413
+[#414]: https://github.com/guard/guard/issues/414
+[#416]: https://github.com/guard/guard/issues/416
+[#435]: https://github.com/guard/guard/issues/435
+[#443]: https://github.com/guard/guard/issues/443
+[#450]: https://github.com/guard/guard/issues/450
+[#453]: https://github.com/guard/guard/issues/453
+[#456]: https://github.com/guard/guard/issues/456
+[#457]: https://github.com/guard/guard/issues/457
+[#460]: https://github.com/guard/guard/issues/460
+[#463]: https://github.com/guard/guard/issues/463
+[#469]: https://github.com/guard/guard/issues/469
+[#471]: https://github.com/guard/guard/issues/471
+[#472]: https://github.com/guard/guard/issues/472
 [@Gazer]: https://github.com/Gazer
 [@Maher4Ever]: https://github.com/Maher4Ever
+[@Nerian]: https://github.com/Nerian
 [@alandipert]: https://github.com/alandipert
+[@amiel]: https://github.com/amiel
 [@anithri]: https://github.com/anithri
 [@ashleyconnor]: https://github.com/ashleyconnor
+[@aspiers]: https://github.com/aspiers
 [@benolee]: https://github.com/benolee
 [@brainopia]: https://github.com/brainopia
 [@bronson]: https://github.com/bronson
@@ -761,6 +899,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@limeyd]: https://github.com/limeyd
 [@madtrick]: https://github.com/madtrick
 [@maio]: https://github.com/maio
+[@martoche]: https://github.com/martoche
 [@mattgreen]: https://github.com/mattgreen
 [@matthijsgroen]: https://github.com/matthijsgroen
 [@mcmire]: https://github.com/mcmire
@@ -777,15 +916,18 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@pcreux]: https://github.com/pcreux
 [@philomory]: https://github.com/philomory
 [@pirukire]: https://github.com/pirukire
+[@pritchie]: https://github.com/pritchie
 [@rking]: https://github.com/rking
 [@rmm5t]: https://github.com/rmm5t
 [@royvandewater]: https://github.com/royvandewater
 [@rudicode]: https://github.com/rudicode
 [@rupert654]: https://github.com/rupert654
+[@rweng]: https://github.com/rweng
 [@rymai]: https://github.com/rymai
 [@schmurfy]: https://github.com/schmurfy
 [@scottdavis]: https://github.com/scottdavis
 [@semperos]: https://github.com/semperos
+[@simon-ohara]: https://github.com/simon-ohara
 [@spadin]: https://github.com/spadin
 [@steakknife]: https://github.com/steakknife
 [@stereobooster]: https://github.com/stereobooster
@@ -795,6 +937,7 @@ The Listen integration has been supervised by [@thibaudgg][] and executed by [@M
 [@tarsolya]: https://github.com/tarsolya
 [@thibaudgg]: https://github.com/thibaudgg
 [@thierryhenrio]: https://github.com/thierryhenrio
+[@timmfin]: https://github.com/timmfin
 [@tinogomes]: https://github.com/tinogomes
 [@tomas-zemres]: https://github.com/tomas-zemres
 [@tpope]: https://github.com/tpope

@@ -10,13 +10,13 @@ module Guard
         description 'Show all Guard plugins.'
 
         banner <<-BANNER
-          Usage: show <scope>
+          Usage: show
 
           Show all defined Guard plugins and their options.
         BANNER
 
         def process
-          output.puts ::Guard::DslDescriber.show(::Guard.options)
+          ::Guard::DslDescriber.show(::Guard.options)
         end
       end
     end
