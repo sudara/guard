@@ -1,5 +1,5 @@
 require 'thread'
-require 'guard_listen'
+require 'guardlisten'
 require 'guard/options'
 
 module Guard
@@ -177,7 +177,7 @@ module Guard
       end
 
       listen_args = @watchdirs + [listener_options]
-      @listener = Listen.to(*listen_args).change(&listener_callback)
+      @listener = GuardListen.to(*listen_args).change(&listener_callback)
     end
 
     # Sets up traps to catch signals used to control Guard.
