@@ -1,5 +1,5 @@
 require 'thread'
-require 'guardlisten'
+require 'guard_listen'
 require 'guard/options'
 
 module Guard
